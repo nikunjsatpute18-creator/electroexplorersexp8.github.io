@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EEM: Megger & Applications</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'electric-blue': '#2563eb',
+                        'volt-yellow': '#fbbf24',
+                        'dark-panel': '#0f172a',
+                        'safety-orange': '#f97316',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'needle-move': 'needleSwing 2s ease-out forwards',
+                    },
+                    keyframes: {
+                        needleSwing: {
+                            '0%': { transform: 'rotate(-90deg)' },
+                            '100%': { transform: 'var(--target-rotation)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles */
+        .glass-effect {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .needle {
+            transform-origin: bottom center;
+            transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans overflow-x-hidden">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-effect text-white transition-all duration-300 shadow-md" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <i class="ph-fill ph-lightning text-volt-yellow text-2xl"></i>
+                    <span class="font-display font-bold text-xl tracking-wider">EEM<span class="text-electric-blue">LAB</span></span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#home" class="hover:text-volt-yellow px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</a>
+                        <a href="#concept" class="hover:text-volt-yellow px-3 py-2 rounded-md text-sm font-medium transition-colors">Concept</a>
+                        <a href="#simulation" class="hover:text-volt-yellow px-3 py-2 rounded-md text-sm font-medium transition-colors">Simulator</a>
+                        <a href="#observation" class="bg-electric-blue hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium transition-all shadow-lg shadow-blue-500/30">Log Book</a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none">
+                        <i class="ph ph-list text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div class="hidden md:hidden bg-slate-900" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#home" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="#concept" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Concept</a>
+                <a href="#simulation" class="text-electric-blue font-bold block px-3 py-2 rounded-md text-base">Simulator</a>
+                <a href="#observation" class="text-gray-300 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Log Book</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="relative min-h-screen flex items-center justify-center bg-dark-panel pt-16 overflow-hidden">
+        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#475569 1px, transparent 1px); background-size: 30px 30px;"></div>
+        <div class="absolute top-0 right-0 w-96 h-96 bg-electric-blue rounded-full filter blur-[128px] opacity-20"></div>
+        <div class="absolute bottom-0 left-0 w-96 h-96 bg-volt-yellow rounded-full filter blur-[128px] opacity-10"></div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12 items-center">
+            <div class="text-left space-y-8">
+                <div class="inline-block bg-slate-800/50 border border-slate-700 rounded-full px-4 py-1">
+                    <span class="text-volt-yellow text-xs font-bold tracking-widest uppercase">Electrical Maintenance 101</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold text-white leading-tight">
+                    Master the <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-electric-blue to-cyan-400 font-display">MEGGER</span>
+                </h1>
+                <p class="text-slate-400 text-lg md:text-xl max-w-lg leading-relaxed">
+                    The essential instrument for testing insulation resistance. Ensure safety, prevent short circuits, and maintain electrical integrity.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#concept" class="bg-white text-slate-900 px-8 py-4 rounded-lg font-bold hover:bg-slate-200 transition-colors flex items-center gap-2">
+                        Learn Basics <i class="ph-bold ph-arrow-right"></i>
+                    </a>
+                    <a href="#simulation" class="border border-slate-600 text-white px-8 py-4 rounded-lg font-bold hover:bg-slate-800 transition-colors flex items-center gap-2">
+                        <i class="ph-fill ph-game-controller"></i> Virtual Lab
+                    </a>
+                </div>
+            </div>
+            
+            <div class="relative flex justify-center">
+                <div class="relative z-10 bg-gradient-to-b from-slate-700 to-slate-800 p-8 rounded-2xl border border-slate-600 shadow-2xl max-w-md w-full transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                    <div class="bg-black rounded-lg p-4 mb-4 border-4 border-gray-600 relative h-48 flex items-end justify-center overflow-hidden">
+                         <div class="absolute top-4 left-4 right-4 h-full border-t-2 border-l-2 border-r-2 border-gray-700 rounded-t-full opacity-50"></div>
+                         <div class="w-1 h-32 bg-red-500 origin-bottom absolute bottom-0 left-1/2 -translate-x-1/2 rotate-[-45deg] shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
+                         <div class="absolute bottom-2 text-center w-full text-green-400 font-mono text-sm">INSULATION: GOOD</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-700 rounded h-12 flex items-center justify-center border border-gray-600">
+                            <div class="w-8 h-8 rounded-full bg-red-600 shadow-inner flex items-center justify-center text-white text-xs font-bold">L</div>
+                        </div>
+                        <div class="bg-gray-700 rounded h-12 flex items-center justify-center border border-gray-600">
+                            <div class="w-8 h-8 rounded-full bg-black shadow-inner flex items-center justify-center text-white text-xs font-bold">E</div>
+                        </div>
+                    </div>
+                    <div class="absolute -right-4 -bottom-4 bg-volt-yellow text-slate-900 font-bold px-4 py-2 rounded-lg shadow-lg transform rotate-12">
+                        High Voltage!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Concept Section -->
+    <section id="concept" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">What is a Megger?</h2>
+                <div class="w-20 h-1 bg-electric-blue mx-auto rounded-full"></div>
+                <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">Also known as an Insulation Resistance Tester, the Megger is a specialized ohmmeter used to measure the electrical resistance of insulators.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-slate-50 p-8 rounded-xl border border-slate-200 hover:shadow-xl transition-all hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-blue-100 text-electric-blue rounded-lg flex items-center justify-center text-3xl mb-6">
+                        <i class="ph-fill ph-function"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Principle</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        It works on the principle of electromagnetic induction. It generates a high DC voltage (500V, 1000V) to measure very high resistance values in Mega-Ohms (MΩ).
+                    </p>
+                </div>
+
+                <div class="bg-slate-50 p-8 rounded-xl border border-slate-200 hover:shadow-xl transition-all hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-orange-100 text-safety-orange rounded-lg flex items-center justify-center text-3xl mb-6">
+                        <i class="ph-fill ph-warning-octagon"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Why Use It?</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        To detect insulation breakdown which might not show up at low voltages but can cause catastrophic failure at operating voltages.
+                    </p>
+                </div>
+
+                <div class="bg-slate-50 p-8 rounded-xl border border-slate-200 hover:shadow-xl transition-all hover:-translate-y-1">
+                    <div class="w-14 h-14 bg-yellow-100 text-yellow-600 rounded-lg flex items-center justify-center text-3xl mb-6">
+                        <i class="ph-fill ph-plugs"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-3">Components</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Key parts include a DC generator (hand-cranked or battery), a Current Coil, a Pressure (Voltage) Coil, a deflecting needle, and connection terminals.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCHEMATICS SECTION -->
+    <section id="schematics" class="py-20 bg-[#0f1012] relative border-y border-slate-800">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:20px_20px] opacity-[0.05]"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="mb-12 text-center">
+                <h2 class="text-4xl font-display font-bold text-white">DEVICE SCHEMATICS</h2>
+                <p class="text-electric-blue font-mono mt-2">// INTERNAL CIRCUITRY & COMPOSITION</p>
+            </div>
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="bg-white p-2 rounded-xl shadow-2xl transform hover:scale-[1.02] transition-transform duration-300">
+                    <div class="relative border border-slate-200 rounded-lg overflow-hidden bg-white">
+                        <div class="absolute top-2 left-2 bg-black/80 text-white text-xs px-2 py-1 rounded font-mono z-10">
+                            FIGURE 3.1: CIRCUIT DIAGRAM
+                        </div>
+                        <img src="IMG-20251119-WA0010.jpg" 
+                             alt="Megger Internal Circuit Diagram" 
+                             class="w-full h-auto object-contain max-h-[400px]"
+                             onerror="this.parentElement.innerHTML=`<div class='h-64 flex flex-col items-center justify-center bg-slate-100 text-slate-400 text-center p-4'><i class='ph-bold ph-image-broken text-4xl mb-2'></i><p class='font-bold'>Image Not Found</p><p class='text-xs'>Please save 'IMG-20251119-WA0010.jpg' in folder.</p></div>`">
+                    </div>
+                    <p class="text-slate-500 text-xs text-center mt-2 font-mono">Internal Structure: Moving Coil Instrument & DC Generator</p>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-slate-800 border-l-4 border-electric-blue p-6 rounded-r-xl shadow-lg">
+                        <h3 class="text-xl font-bold text-white mb-3 flex items-center gap-2">
+                            <i class="ph-fill ph-circuitry text-electric-blue"></i> Working Principle
+                        </h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            The Megger operates as a <strong>Moving Coil Instrument</strong>. The deflection of the pointer depends on the ratio of the currents in the two coils (Coil A & Coil B). This ratio is proportional to the voltage divided by the current (V/I), which equals Resistance (R).
+                        </p>
+                    </div>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div class="bg-black border border-slate-800 p-4 rounded hover:border-volt-yellow transition-colors">
+                            <div class="text-volt-yellow font-bold text-xs font-mono mb-1">01. GENERATOR</div>
+                            <h4 class="text-white font-bold text-sm">Hand Crank DC Gen</h4>
+                            <p class="text-slate-500 text-xs mt-1">Produces high voltage (e.g., 500V/1000V) when the handle is rotated.</p>
+                        </div>
+                        <div class="bg-black border border-slate-800 p-4 rounded hover:border-electric-blue transition-colors">
+                            <div class="text-electric-blue font-bold text-xs font-mono mb-1">02. COILS</div>
+                            <h4 class="text-white font-bold text-sm">Coil A & Coil B</h4>
+                            <p class="text-slate-500 text-xs mt-1">
+                                <strong>Coil A:</strong> Current (Zero).<br>
+                                <strong>Coil B:</strong> Pressure (Infinity).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Simulator Section -->
+    <section id="simulation" class="py-20 bg-slate-900 text-white relative overflow-hidden">
+        <div class="absolute inset-0 opacity-5" style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 40px 40px;"></div>
+        
+        <div class="max-w-6xl mx-auto px-4 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-display font-bold text-white"><i class="ph-fill ph-flask text-electric-blue"></i> Virtual Lab</h2>
+                    <p class="text-slate-400 mt-2">Select a scenario, choose your connection points, and perform the test.</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <div class="bg-slate-800 px-4 py-2 rounded-lg border border-slate-600 text-sm">
+                        <span class="text-slate-400">Status:</span> <span id="sim-status" class="text-volt-yellow font-mono">READY</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12 bg-slate-800 rounded-2xl p-6 md:p-10 border border-slate-700 shadow-2xl">
+                <!-- Controls -->
+                <div class="space-y-8">
+                    <!-- 1. Equipment Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-electric-blue mb-2 uppercase tracking-wider">1. Scenario Setup</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="setScenario('good')" class="scenario-btn active group relative flex items-center p-3 border border-slate-600 rounded-lg hover:bg-slate-700 transition-all bg-slate-700/50">
+                                <i class="ph-fill ph-check-circle text-2xl text-green-400 mr-3"></i>
+                                <div class="text-left leading-tight"><div class="font-bold text-sm">Healthy Cable</div><div class="text-[10px] text-slate-400">All Insulation Good</div></div>
+                            </button>
+                            <button onclick="setScenario('bad_b')" class="scenario-btn group relative flex items-center p-3 border border-slate-600 rounded-lg hover:bg-slate-700 transition-all bg-slate-700/50">
+                                <i class="ph-fill ph-warning text-2xl text-red-400 mr-3"></i>
+                                <div class="text-left leading-tight"><div class="font-bold text-sm">Faulty Phase B</div><div class="text-[10px] text-slate-400">B-Earth Short</div></div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Connection Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-electric-blue mb-2 uppercase tracking-wider">2. Test Connections</label>
+                        <p class="text-xs text-slate-400 mb-3">Select the terminals to test:</p>
+                        
+                        <div class="grid grid-cols-4 gap-2 mb-2">
+                            <button onclick="setConnection('R-E')" class="conn-btn bg-black border border-slate-600 rounded p-2 text-xs font-mono hover:border-white transition-colors">R-E</button>
+                            <button onclick="setConnection('Y-E')" class="conn-btn bg-black border border-slate-600 rounded p-2 text-xs font-mono hover:border-white transition-colors">Y-E</button>
+                            <button onclick="setConnection('B-E')" class="conn-btn bg-black border border-slate-600 rounded p-2 text-xs font-mono hover:border-white transition-colors">B-E</button>
+                            <button onclick="setConnection('N-E')" class="conn-btn bg-black border border-slate-600 rounded p-2 text-xs font-mono hover:border-white transition-colors">N-E</button>
+                        </div>
+                        
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="setConnection('R-Y')" class="conn-btn bg-black border border-slate-600 rounded p-2 text-xs font-mono hover:border-white transition-colors">R-Y</button>
+                            <button onclick="setConnection('Y-B')" class="conn-btn bg-black border border-slate-600 rounded p-2 text-xs font-mono hover:border-white transition-colors">Y-B</button>
+                            <button onclick="setConnection('B-R')" class="conn-btn bg-black border border-slate-600 rounded p-2 text-xs font-mono hover:border-white transition-colors">B-R</button>
+                        </div>
+                    </div>
+
+                    <button onclick="runTest()" id="test-btn" disabled class="w-full py-4 bg-gradient-to-r from-slate-700 to-slate-600 rounded-xl font-bold text-xl shadow-lg flex justify-center items-center gap-2 cursor-not-allowed opacity-50 transition-all">
+                        <i class="ph-bold ph-hand-tap"></i> START TEST
+                    </button>
+                    
+                    <div id="result-text" class="hidden p-4 bg-slate-900 rounded-lg border-l-4 border-gray-500 text-gray-300 text-sm"></div>
+                </div>
+
+                <!-- Visualizer -->
+                <div class="relative flex flex-col items-center justify-center bg-slate-900 rounded-xl p-8 border border-slate-700 shadow-inner">
+                    <div class="absolute top-4 left-4 text-xs font-mono text-slate-500">
+                        Active Test: <span id="active-test-label" class="text-white font-bold">NONE</span>
+                    </div>
+                    
+                    <div class="relative w-64 h-32 mb-8 mt-4">
+                        <div class="absolute inset-0 w-64 h-64 rounded-full border-[20px] border-slate-700 border-b-0 border-l-0 border-r-0 clip-half"></div>
+                        <div class="absolute bottom-0 left-2 text-xs font-mono text-slate-400">0</div>
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 text-xs font-mono text-slate-400">100M</div>
+                        <div class="absolute bottom-0 right-2 text-xs font-mono text-slate-400">∞</div>
+                        
+                        <div id="sim-needle" class="needle absolute bottom-0 left-1/2 w-1 h-28 bg-red-500 shadow-[0_0_15px_red] origin-bottom" style="transform: rotate(-90deg);"></div>
+                    </div>
+                    
+                    <div class="bg-black border-2 border-gray-700 rounded px-6 py-3 font-mono text-3xl text-green-500 shadow-[0_0_20px_rgba(34,197,94,0.2)] min-w-[180px] text-center">
+                        <span id="digital-display">---</span> <span class="text-sm text-gray-500">MΩ</span>
+                    </div>
+                    
+                    <div class="mt-6 text-center">
+                        <div class="text-[10px] text-slate-500 mb-1">LOG OUTPUT</div>
+                        <div id="log-display" class="h-24 w-full bg-black/50 rounded border border-slate-800 p-2 text-xs font-mono text-left overflow-y-auto text-slate-300">
+                            > System Initialized...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW DIGITAL OBSERVATION TABLE SECTION -->
+    <section id="observation" class="py-20 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-display font-bold text-slate-900">Digital Observation Table</h2>
+                <p class="text-slate-500 mt-2">Enter your measured values to generate automated field remarks.</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-200">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-slate-600">
+                        <thead class="text-xs text-slate-700 uppercase bg-slate-100 border-b border-slate-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-3">Connection Point</th>
+                                <th scope="col" class="px-6 py-3">Measured Value (MΩ)</th>
+                                <th scope="col" class="px-6 py-3 text-center">Action</th>
+                                <th scope="col" class="px-6 py-3">Automated Remark</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- SECTION 1: WINDING TO FRAME -->
+                            <tr class="bg-slate-100 border-b">
+                                <td colspan="4" class="px-6 py-2 font-bold text-slate-700 uppercase text-xs tracking-wider">
+                                    A. Motor: Winding to Frame (Earth)
+                                </td>
+                            </tr>
+                            
+                            <!-- 1. U and Frame -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="ph-fill ph-ground-pin text-electric-blue"></i> 1. U and Frame
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-u-frame" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('u-frame')" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-u-frame"><span class="text-slate-400 italic">Waiting for input...</span></td>
+                            </tr>
+
+                            <!-- 2. V and Frame -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="ph-fill ph-ground-pin text-electric-blue"></i> 2. V and Frame
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-v-frame" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('v-frame')" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-v-frame"><span class="text-slate-400 italic">Waiting for input...</span></td>
+                            </tr>
+
+                            <!-- 3. W and Frame -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="ph-fill ph-ground-pin text-electric-blue"></i> 3. W and Frame
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-w-frame" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('w-frame')" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-w-frame"><span class="text-slate-400 italic">Waiting for input...</span></td>
+                            </tr>
+
+                            <!-- SECTION 2: PHASE TO PHASE -->
+                            <tr class="bg-slate-100 border-b">
+                                <td colspan="4" class="px-6 py-2 font-bold text-slate-700 uppercase text-xs tracking-wider">
+                                    B. Motor: Phase to Phase
+                                </td>
+                            </tr>
+
+                            <!-- 1. U and V -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="ph-bold ph-arrows-left-right text-volt-yellow"></i> 1. U and V
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-u-v" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-yellow-500 focus:border-yellow-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('u-v')" class="text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-slate-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-u-v"><span class="text-slate-400 italic">Waiting for input...</span></td>
+                            </tr>
+
+                            <!-- 2. V and W -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="ph-bold ph-arrows-left-right text-volt-yellow"></i> 2. V and W
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-v-w" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-yellow-500 focus:border-yellow-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('v-w')" class="text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-slate-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-v-w"><span class="text-slate-400 italic">Waiting for input...</span></td>
+                            </tr>
+
+                            <!-- 3. W and U -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="ph-bold ph-arrows-left-right text-volt-yellow"></i> 3. W and U
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-w-u" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-yellow-500 focus:border-yellow-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('w-u')" class="text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-slate-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-w-u"><span class="text-slate-400 italic">Waiting for input...</span></td>
+                            </tr>
+
+                            <!-- SECTION 3: CABLE TESTING (NEW) -->
+                            <tr class="bg-slate-100 border-b">
+                                <td colspan="4" class="px-6 py-2 font-bold text-slate-700 uppercase text-xs tracking-wider">
+                                    C. Cable: Phase to Earth & Phase to Phase
+                                </td>
+                            </tr>
+
+                            <!-- R-E -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-red-500"></div> R - Earth
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-r-e" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('r-e')" class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-r-e"><span class="text-slate-400 italic">Waiting...</span></td>
+                            </tr>
+
+                            <!-- Y-E -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-yellow-400"></div> Y - Earth
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-y-e" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-yellow-500 focus:border-yellow-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('y-e')" class="text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-y-e"><span class="text-slate-400 italic">Waiting...</span></td>
+                            </tr>
+
+                            <!-- B-E -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-blue-500"></div> B - Earth
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-b-e" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('b-e')" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-b-e"><span class="text-slate-400 italic">Waiting...</span></td>
+                            </tr>
+
+                            <!-- R-Y -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <span class="text-red-500">R</span> - <span class="text-yellow-500">Y</span> Phase
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-r-y" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('r-y')" class="text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-slate-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-r-y"><span class="text-slate-400 italic">Waiting...</span></td>
+                            </tr>
+
+                            <!-- Y-B -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <span class="text-yellow-500">Y</span> - <span class="text-blue-500">B</span> Phase
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-y-b" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('y-b')" class="text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-slate-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-y-b"><span class="text-slate-400 italic">Waiting...</span></td>
+                            </tr>
+
+                            <!-- B-R -->
+                            <tr class="bg-white border-b hover:bg-slate-50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-slate-900 flex items-center gap-2">
+                                    <span class="text-blue-500">B</span> - <span class="text-red-500">R</span> Phase
+                                </td>
+                                <td class="px-6 py-4">
+                                    <input type="number" id="in-b-r" placeholder="0.0" class="bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-gray-500 focus:border-gray-500 block w-full p-2.5">
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="checkReading('b-r')" class="text-white bg-slate-700 hover:bg-slate-800 focus:ring-4 focus:ring-slate-300 font-medium rounded-lg text-xs px-3 py-2 shadow-sm">Analyze</button>
+                                </td>
+                                <td class="px-6 py-4" id="rem-b-r"><span class="text-slate-400 italic">Waiting...</span></td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="bg-slate-100 px-6 py-3 border-t border-slate-200 text-xs text-slate-500 flex justify-between items-center">
+                    <span>* Standard: > 100 MΩ for Healthy Insulation (Motor/Cable)</span>
+                    <button onclick="clearTable()" class="text-red-500 hover:text-red-700 font-bold underline flex items-center gap-1">
+                        <i class="ph-bold ph-trash"></i> Reset Table
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Field Notes & Video -->
+    <section class="py-20 bg-slate-900 text-white border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="order-2 lg:order-1">
+                    <div class="relative rounded-xl overflow-hidden shadow-2xl border border-slate-700 bg-black aspect-video group">
+                        <!-- Updated YouTube Embed -->
+                        <iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/wdYEiirkCws?rel=0" title="Megger Testing Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="order-1 lg:order-2 space-y-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-4">Field Testing Checklist</h2>
+                        <p class="text-slate-400">Essential steps for verifying 3.5 Core Cables.</p>
+                    </div>
+                    <ul class="space-y-2 text-sm text-slate-300">
+                        <li class="flex gap-2"><i class="ph-bold ph-check text-green-400"></i> Check 1: Red to Earth</li>
+                        <li class="flex gap-2"><i class="ph-bold ph-check text-green-400"></i> Check 2: Yellow to Earth</li>
+                        <li class="flex gap-2"><i class="ph-bold ph-check text-green-400"></i> Check 3: Blue to Earth</li>
+                        <li class="flex gap-2"><i class="ph-bold ph-check text-green-400"></i> Check 4: Neutral to Earth</li>
+                        <li class="flex gap-2"><i class="ph-bold ph-check text-green-400"></i> Check 5-10: Phase to Phase & Neutral</li>
+                    </ul>
+                    <div class="bg-red-900/30 p-4 rounded border border-red-900/50 text-xs text-red-200">
+                        <strong>SAFETY CRITICAL:</strong> Always short all phases to earth after testing to discharge stored capacitive energy.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Safety Banner -->
+    <section class="bg-safety-orange py-12">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div class="flex items-center gap-4 text-white">
+                <i class="ph-fill ph-siren text-5xl"></i>
+                <div>
+                    <h3 class="text-2xl font-bold">Safety First!</h3>
+                    <p class="opacity-90">Always discharge the equipment before and after using a Megger.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section & Footer -->
+    <section id="team" class="py-20 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            
+            <!-- ADDED LOGO SECTION -->
+            <div class="mb-8 flex flex-col items-center">
+                <div class="w-48 h-48 rounded-2xl overflow-hidden shadow-xl border-4 border-white mb-6 transform hover:scale-105 transition-transform bg-white">
+                    <img src="WhatsApp%20Image%202025-11-17%20at%2016.59.42_97306bec.jpg" 
+                         alt="Electro Explorers Group Logo" 
+                         class="w-full h-full object-cover"
+                         onerror="this.src='https://placehold.co/200x200?text=LOGO+NOT+FOUND'; this.parentElement.innerHTML += '<p class=\'text-xs text-red-500 mt-2\'>Ensure file is in folder</p>'">
+                </div>
+                <div class="inline-block bg-electric-blue/10 text-electric-blue px-4 py-1 rounded-full text-sm font-bold mb-4">
+                    PROJECT GROUP
+                </div>
+                <h2 class="text-3xl md:text-4xl font-display font-bold text-slate-900">Electro Explorers</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
+                <!-- Member 1 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-slate-200 group">
+                    <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4 group-hover:bg-electric-blue group-hover:text-white transition-colors">
+                        <span class="font-display font-bold text-xl">RP</span>
+                    </div>
+                    <h3 class="text-slate-900 font-bold text-sm mb-1">Rushikesh Aaglave Patil</h3>
+                    <p class="text-slate-500 text-xs font-mono bg-slate-100 inline-block px-2 py-1 rounded">125B1E027</p>
+                </div>
+                <!-- Member 2 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-slate-200 group">
+                    <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4 group-hover:bg-pink-500 group-hover:text-white transition-colors">
+                        <span class="font-display font-bold text-xl">RR</span>
+                    </div>
+                    <h3 class="text-slate-900 font-bold text-sm mb-1">Rupal Raskar</h3>
+                    <p class="text-slate-500 text-xs font-mono bg-slate-100 inline-block px-2 py-1 rounded">125B1E028</p>
+                </div>
+                <!-- Member 3 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-slate-200 group">
+                    <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                        <span class="font-display font-bold text-xl">LC</span>
+                    </div>
+                    <h3 class="text-slate-900 font-bold text-sm mb-1">Lochana Chaudhari</h3>
+                    <p class="text-slate-500 text-xs font-mono bg-slate-100 inline-block px-2 py-1 rounded">125B1E029</p>
+                </div>
+                <!-- Member 4 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-slate-200 group">
+                    <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                        <span class="font-display font-bold text-xl">NS</span>
+                    </div>
+                    <h3 class="text-slate-900 font-bold text-sm mb-1">Nikunj Satpute</h3>
+                    <p class="text-slate-500 text-xs font-mono bg-slate-100 inline-block px-2 py-1 rounded">125B1E020</p>
+                </div>
+                <!-- Member 5 -->
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all border border-slate-200 group">
+                    <div class="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center text-slate-400 mb-4 group-hover:bg-teal-500 group-hover:text-white transition-colors">
+                        <span class="font-display font-bold text-xl">SP</span>
+                    </div>
+                    <h3 class="text-slate-900 font-bold text-sm mb-1">Shreyas Patil</h3>
+                    <p class="text-slate-500 text-xs font-mono bg-slate-100 inline-block px-2 py-1 rounded">125B1E031</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+            <div>
+                <div class="flex items-center gap-2 text-white mb-4">
+                    <i class="ph-fill ph-lightning text-volt-yellow"></i>
+                    <span class="font-display font-bold">EEM<span class="text-electric-blue">LAB</span></span>
+                </div>
+                <p class="text-sm">Educational resource for Electrical and Electronics Maintenance students.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-4">Contact</h4>
+                <p class="text-sm">Department of Applied Sciences & Humanities<br>Subject: EEM (Code BET21VS01)</p>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-slate-800 text-center text-xs">
+            &copy; 2024 EEM Lab Resources. Designed for Education.
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // --- SIMULATOR LOGIC ---
+        let currentScenario = 'good';
+        let currentConnection = null;
+
+        function setScenario(type) {
+            currentScenario = type;
+            document.querySelectorAll('.scenario-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-electric-blue', 'bg-slate-700');
+                btn.classList.add('bg-slate-700/50');
+            });
+            event.currentTarget.classList.remove('bg-slate-700/50');
+            event.currentTarget.classList.add('ring-2', 'ring-electric-blue', 'bg-slate-700');
+            
+            document.getElementById('log-display').innerHTML = "> System Initialized...<br>> Scenario Changed.";
+            resetDisplay();
+        }
+
+        function setConnection(conn) {
+            currentConnection = conn;
+            document.querySelectorAll('.conn-btn').forEach(btn => {
+                btn.classList.remove('bg-electric-blue', 'text-white', 'border-electric-blue');
+                btn.classList.add('bg-black', 'border-slate-600');
+            });
+            event.currentTarget.classList.remove('bg-black', 'border-slate-600');
+            event.currentTarget.classList.add('bg-electric-blue', 'text-white', 'border-electric-blue');
+            
+            const btn = document.getElementById('test-btn');
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed', 'from-slate-700', 'to-slate-600');
+            btn.classList.add('from-safety-orange', 'to-red-600', 'hover:brightness-110');
+            btn.innerHTML = `<i class="ph-bold ph-lightning"></i> TEST ${conn}`;
+            
+            document.getElementById('active-test-label').innerText = conn;
+            resetDisplay();
+        }
+
+        function resetDisplay() {
+            document.getElementById('digital-display').innerText = "---";
+            document.getElementById('sim-needle').style.transform = "rotate(-90deg)";
+            document.getElementById('result-text').classList.add('hidden');
+            document.getElementById('sim-status').innerText = "READY";
+            document.getElementById('sim-status').className = "text-volt-yellow font-mono";
+        }
+
+        function runTest() {
+            if(!currentConnection) return;
+
+            const btn = document.getElementById('test-btn');
+            const needle = document.getElementById('sim-needle');
+            const display = document.getElementById('digital-display');
+            const status = document.getElementById('sim-status');
+            const resultBox = document.getElementById('result-text');
+            const log = document.getElementById('log-display');
+
+            let resultValue, angle, msg, color;
+            let isPass = true;
+            let val = (400 + Math.random() * 200).toFixed(0); 
+            
+            if (currentScenario === 'bad_b') {
+                if (currentConnection === 'B-E') {
+                    isPass = false;
+                    val = (0.01 + Math.random() * 0.05).toFixed(2); 
+                }
+            }
+
+            if (isPass) {
+                resultValue = val;
+                angle = '80deg';
+                msg = `PASS: ${currentConnection} Insulation Healthy (>100MΩ)`;
+                color = 'border-green-500 text-green-400';
+            } else {
+                resultValue = val;
+                angle = '-85deg';
+                msg = `FAIL: ${currentConnection} Insulation Breakdown Detected!`;
+                color = 'border-red-500 text-red-400';
+            }
+
+            status.innerText = "INJECTING 1000V...";
+            status.className = "text-red-500 animate-pulse font-mono";
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            
+            let flickerCount = 0;
+            const flickerInterval = setInterval(() => {
+                display.innerText = (Math.random() * 100).toFixed(1);
+                flickerCount++;
+                if(flickerCount > 10) clearInterval(flickerInterval);
+            }, 100);
+
+            setTimeout(() => {
+                needle.style.transform = `rotate(${angle})`;
+                setTimeout(() => {
+                    clearInterval(flickerInterval);
+                    display.innerText = resultValue;
+                    status.innerText = "COMPLETE";
+                    status.className = "text-green-500 font-mono";
+                    resultBox.className = `p-4 bg-slate-900 rounded-lg border-l-4 ${color.split(' ')[0]} text-gray-300 text-sm animate-fade-in block mt-4`;
+                    resultBox.innerHTML = `<strong class="${color.split(' ')[1]}">${isPass ? 'PASSED' : 'FAILED'}</strong><br>${msg}`;
+                    log.innerHTML += `<br>> ${currentConnection}: ${resultValue} MΩ [${isPass ? 'OK' : 'FAULT'}]`;
+                    log.scrollTop = log.scrollHeight;
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                }, 1000);
+            }, 500);
+        }
+
+        // --- OBSERVATION TABLE LOGIC (NEW) ---
+        function checkReading(id) {
+            const input = document.getElementById('in-' + id);
+            const output = document.getElementById('rem-' + id);
+            const val = parseFloat(input.value);
+
+            if (isNaN(val)) {
+                output.innerHTML = "<span class='text-slate-400'>Please enter value</span>";
+                return;
+            }
+
+            // Logic: >100MΩ = Healthy, <1MΩ = Fail/Short, 1-100 = Warning
+            if (val > 100) {
+                output.innerHTML = "<span class='text-green-600 font-bold flex items-center gap-1'><i class='ph-bold ph-check-circle'></i> PASS: Healthy</span>";
+            } else if (val < 1) {
+                output.innerHTML = "<span class='text-red-600 font-bold flex items-center gap-1'><i class='ph-bold ph-x-circle'></i> FAIL: Dead Short</span>";
+            } else {
+                output.innerHTML = "<span class='text-yellow-600 font-bold flex items-center gap-1'><i class='ph-bold ph-warning'></i> WARNING: Low IR</span>";
+            }
+        }
+
+        function clearTable() {
+            const inputs = document.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => input.value = '');
+            const outputs = document.querySelectorAll('td[id^="rem-"]');
+            outputs.forEach(out => out.innerHTML = "<span class='text-slate-400 italic'>Waiting...</span>");
+        }
+
+        // Scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) nav.classList.add('shadow-lg');
+            else nav.classList.remove('shadow-lg');
+        });
+    </script>
+</body>
+</html>
